@@ -4,6 +4,8 @@ import { CodeStudioEditor } from './editor';
 import { PackageManager } from './packages';
 import { EXAMPLES } from './examples';
 
+import { buildAppLayout } from './layout';
+
 declare global {
   interface Window {
     loadPyodide: any;
@@ -11,56 +13,8 @@ declare global {
   }
 }
 
-// ── APP DOM ELEMENTS ──
-const dom = {
-  loadingOverlay: document.getElementById('loading-overlay') as HTMLElement,
-  pyver: document.getElementById('pyver') as HTMLElement,
-  btnRun: document.getElementById('btn-run') as HTMLButtonElement,
-  btnClear: document.getElementById('btn-clear') as HTMLButtonElement,
-  btnFormat: document.getElementById('btn-format') as HTMLButtonElement,
-  btnTogglePackages: document.getElementById('btn-toggle-packages') as HTMLButtonElement,
-  btnToggleSettings: document.getElementById('btn-toggle-settings') as HTMLButtonElement,
-  exampleSel: document.getElementById('example-sel') as HTMLSelectElement,
-  
-  // Sidebars
-  sidebarPanel: document.getElementById('sidebar-panel') as HTMLElement,
-  packageSection: document.getElementById('package-section') as HTMLElement,
-  settingsSection: document.getElementById('settings-section') as HTMLElement,
-  btnNewFile: document.getElementById('btn-new-file') as HTMLButtonElement,
-  fileList: document.getElementById('file-list') as HTMLElement,
-  
-  // Packages
-  packageInput: document.getElementById('package-input') as HTMLInputElement,
-  btnInstallPackage: document.getElementById('btn-install-package') as HTMLButtonElement,
-  packageStatus: document.getElementById('package-status') as HTMLElement,
-  installedPackagesList: document.getElementById('installed-packages-list') as HTMLElement,
-  btnClosePackages: document.getElementById('btn-close-packages') as HTMLButtonElement,
-  
-  // Settings
-  settingFontSize: document.getElementById('setting-font-size') as HTMLSelectElement,
-  settingTheme: document.getElementById('setting-theme') as HTMLSelectElement,
-  settingKeymap: document.getElementById('setting-keymap') as HTMLSelectElement,
-  settingAutosave: document.getElementById('setting-autosave') as HTMLInputElement,
-  btnCloseSettings: document.getElementById('btn-close-settings') as HTMLButtonElement,
-  
-  // Panels
-  editorHolder: document.getElementById('editor-holder') as HTMLElement,
-  currentFilename: document.getElementById('current-filename') as HTMLElement,
-  saveStatus: document.getElementById('save-status') as HTMLElement,
-  output: document.getElementById('output') as HTMLElement,
-  execBadge: document.getElementById('exec-badge') as HTMLElement,
-  btnCopyOutput: document.getElementById('btn-copy-output') as HTMLButtonElement,
-  btnDownloadOutput: document.getElementById('btn-download-output') as HTMLButtonElement,
-  
-  // Mobile Tabs
-  mobileTabs: document.querySelectorAll('.mobile-tab'),
-  appContainer: document.getElementById('app') as HTMLElement,
-  
-  // Status bar
-  sdot: document.getElementById('sdot') as HTMLElement,
-  stext: document.getElementById('stext') as HTMLElement,
-  sline: document.getElementById('sline') as HTMLElement,
-};
+// ── APP DOM ELEMENTS (Dynamically Generated) ──
+const dom = buildAppLayout(document.getElementById('app') as HTMLElement);
 
 // ── STATE ──
 const fs = new FileSystem();

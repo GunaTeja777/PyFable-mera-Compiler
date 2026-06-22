@@ -1,3 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --color-parchment: var(--parchment);
+  --color-parchment-mid: var(--parchment-mid);
+  --color-parchment-dark: var(--parchment-dark);
+  --color-cream: var(--cream);
+  --color-ink: var(--ink);
+  --color-ink-mid: var(--ink-mid);
+  --color-ink-light: var(--ink-light);
+  --color-teal: var(--teal);
+  --color-teal-light: var(--teal-light);
+  --color-red: var(--red);
+  --color-blue: var(--blue);
+  --color-amber: var(--amber);
+  --color-sage: var(--sage);
+  --color-output-bg: var(--output-bg);
+  --color-output-text: var(--output-text);
+  
+  --font-lato: 'Lato', sans-serif;
+  --font-playfair: 'Playfair Display', serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
 /* ── DESIGN SYSTEM & VARIABLE TOKENS ── */
 :root {
   /* Botanical Parchment Theme (Light Mode) */
