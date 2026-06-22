@@ -8,7 +8,14 @@ export function buildAppLayout(container: HTMLElement) {
   loadingOverlay.className = 'absolute inset-0 bg-parchment flex flex-col items-center justify-center gap-[18px] z-[200] transition-opacity duration-250';
   loadingOverlay.setAttribute('aria-live', 'polite');
   loadingOverlay.innerHTML = `
-    <img src="/logo.png" class="h-16 w-auto object-contain" alt="PyFable Logo" />
+    <svg width="90" height="60" viewBox="0 0 90 60" aria-hidden="true">
+      <ellipse cx="30" cy="24" rx="22" ry="15" fill="#2E7D6E" opacity=".9" transform="rotate(-25,30,24)"/>
+      <ellipse cx="20" cy="36" rx="15" ry="9" fill="#4A7BC4" opacity=".75" transform="rotate(12,20,36)"/>
+      <ellipse cx="60" cy="24" rx="22" ry="15" fill="#C84B2F" opacity=".9" transform="rotate(25,60,24)"/>
+      <ellipse cx="70" cy="36" rx="15" ry="9" fill="#D4920A" opacity=".75" transform="rotate(-12,70,36)"/>
+      <ellipse cx="45" cy="30" rx="3.5" ry="17" fill="#1C1409"/>
+      <circle cx="45" cy="12" r="3.8" fill="#1C1409"/>
+    </svg>
     <h2 class="font-playfair text-[26px] text-ink font-bold">PyFable</h2>
     <p class="text-xs text-ink-light">Summoning the Python WebAssembly runtime…</p>
     <div class="ldots">
@@ -24,7 +31,14 @@ export function buildAppLayout(container: HTMLElement) {
   header.className = 'hdr bg-ink text-cream px-5 h-[52px] flex items-center justify-between border-b-3 border-teal shrink-0 relative overflow-hidden shadow-md z-10';
   header.innerHTML = `
     <div class="hdr-left flex items-center gap-3">
-      <img src="/logo.png" class="h-8 w-auto object-contain" alt="PyFable Logo" />
+      <svg width="30" height="22" viewBox="0 0 80 54" aria-hidden="true">
+        <ellipse cx="26" cy="20" rx="20" ry="13" fill="#2E7D6E" opacity=".9" transform="rotate(-25,26,20)"/>
+        <ellipse cx="18" cy="32" rx="13" ry="8" fill="#4A7BC4" opacity=".75" transform="rotate(12,18,32)"/>
+        <ellipse cx="54" cy="20" rx="20" ry="13" fill="#C84B2F" opacity=".9" transform="rotate(25,54,20)"/>
+        <ellipse cx="62" cy="32" rx="13" ry="8" fill="#D4920A" opacity=".75" transform="rotate(-12,62,32)"/>
+        <ellipse cx="40" cy="28" rx="3" ry="15" fill="#E8DCBF"/>
+        <circle cx="40" cy="12" r="3" fill="#E8DCBF"/>
+      </svg>
       <div class="hdr-logo font-playfair text-[22px] font-bold tracking-[0.3px] whitespace-nowrap">Py<em class="text-amber not-italic font-normal">Fable</em></div>
       <div class="hdr-sub text-[11px] text-cream/40 italic whitespace-nowrap">— Python Studio · Fable 5 Edition</div>
     </div>
