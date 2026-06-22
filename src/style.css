@@ -936,36 +936,3 @@ html, body {
     display: flex !important;
   }
 }
-
-/* Animated Deer Antlers (Success Animation) */
-#success-deer {
-  position: fixed;
-  bottom: -150px;
-  right: 40px;
-  z-index: 9998;
-  color: var(--teal);
-  pointer-events: none;
-  transition: bottom 0.8s cubic-bezier(.175, .885, .32, 1.275), opacity 0.5s ease;
-  opacity: 0;
-}
-
-#success-deer.show {
-  bottom: 0px;
-  opacity: 0.9;
-}
-
-#success-deer svg {
-  filter: drop-shadow(0 0 6px rgba(46, 125, 110, 0.2));
-  animation: antler-glow 2.5s infinite alternate ease-in-out;
-}
-
-@keyframes antler-glow {
-  0% {
-    filter: drop-shadow(0 0 3px rgba(46, 125, 110, 0.2));
-    transform: rotate(0deg) scale(1);
-  }
-  100% {
-    filter: drop-shadow(0 0 10px rgba(46, 125, 110, 0.6));
-    transform: rotate(1deg) scale(1.02);
-  }
-}

@@ -799,17 +799,6 @@ function flyButterfly(isSuccess: boolean) {
       b.remove();
     }, Math.max(20, delay) + duration * 1000 + 100);
   }
-
-  // Trigger stag antlers (deer horns) animation on success only
-  if (isSuccess) {
-    const deer = document.getElementById('success-deer');
-    if (deer) {
-      deer.classList.add('show');
-      setTimeout(() => {
-        deer.classList.remove('show');
-      }, 3200);
-    }
-  }
 }
 
 // ── EVENT BINDINGS ──
