@@ -5,6 +5,7 @@ import { PackageManager } from './packages';
 import { EXAMPLES } from './examples';
 
 import { buildAppLayout } from './layout';
+import { analyzeComplexity } from './analyzer';
 
 declare global {
   interface Window {
@@ -203,8 +204,9 @@ sys.stderr = _cap_err
     dom.execBadge.style.display = 'inline';
     
     if (!hadError) {
+      const { time: timeComp, space: spaceComp } = analyzeComplexity(code);
       setStatus('ready', `Done in ${duration} ms`);
-      dom.execBadge.textContent = `✓ ${duration} ms`;
+      dom.execBadge.textContent = `✓ ${duration} ms | Time: ${timeComp} | Space: ${spaceComp}`;
       dom.execBadge.style.color = 'var(--teal)';
       flyButterfly(true);
     } else {
