@@ -782,12 +782,16 @@ html, body {
 }
 
 /* ── FLYING BUTTERFLY WING FLAP ── */
-#fly-butterfly {
+#fly-butterfly, .flying-butterfly {
   position: fixed;
   pointer-events: none;
   z-index: 9999;
   display: none;
   transition: none;
+}
+
+.flying-butterfly {
+  display: block;
 }
 
 /* Advanced Flapping Wing Animation */
@@ -801,12 +805,12 @@ html, body {
   50% { transform: rotate(10deg) scaleX(0.35); }
 }
 
-#fw-left {
+#fw-left, .fw-left {
   transform-origin: 40px 27px;
   animation: flap-left 0.12s infinite ease-in-out;
 }
 
-#fw-right {
+#fw-right, .fw-right {
   transform-origin: 40px 27px;
   animation: flap-right 0.12s infinite ease-in-out;
 }
@@ -933,35 +937,110 @@ html, body {
   }
 }
 
-/* Animated Deer Antlers (Success Animation) */
-#success-deer {
+/* ── Majestic Flying Pegasus Success Animation ── */
+.pegasus-container {
   position: fixed;
-  bottom: -150px;
-  right: 40px;
-  z-index: 9998;
-  color: var(--teal);
   pointer-events: none;
-  transition: bottom 0.8s cubic-bezier(.175, .885, .32, 1.275), opacity 0.5s ease;
-  opacity: 0;
+  z-index: 9999;
+  width: 140px;
+  height: 105px;
+  filter: drop-shadow(0 4px 15px rgba(226, 169, 45, 0.45));
+  transform-style: preserve-3d;
 }
 
-#success-deer.show {
-  bottom: 0px;
-  opacity: 0.9;
+.pegasus-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
-#success-deer svg {
-  filter: drop-shadow(0 0 6px rgba(46, 125, 110, 0.2));
-  animation: antler-glow 2.5s infinite alternate ease-in-out;
+/* Wing Flapping (3D Feel) */
+.pegasus-wing-front {
+  transform-origin: 68px 42px;
+  animation: pegasus-flap-front 0.28s infinite ease-in-out;
 }
 
-@keyframes antler-glow {
-  0% {
-    filter: drop-shadow(0 0 3px rgba(46, 125, 110, 0.2));
-    transform: rotate(0deg) scale(1);
+.pegasus-wing-back {
+  transform-origin: 65px 40px;
+  animation: pegasus-flap-back 0.28s infinite ease-in-out;
+  filter: brightness(0.7);
+}
+
+@keyframes pegasus-flap-front {
+  0%, 100% {
+    transform: rotate(-35deg) skewX(-10deg) scaleY(1);
   }
-  100% {
-    filter: drop-shadow(0 0 10px rgba(46, 125, 110, 0.6));
-    transform: rotate(1deg) scale(1.02);
+  50% {
+    transform: rotate(25deg) skewX(10deg) scaleY(0.3);
   }
+}
+
+@keyframes pegasus-flap-back {
+  0%, 100% {
+    transform: rotate(-15deg) skewX(-5deg) scaleY(0.9);
+  }
+  50% {
+    transform: rotate(35deg) skewX(5deg) scaleY(0.25);
+  }
+}
+
+/* Leg Galloping Motion */
+.pegasus-leg-front-near {
+  transform-origin: 80px 58px;
+  animation: pegasus-gallop-front-near 0.5s infinite ease-in-out;
+}
+
+.pegasus-leg-front-far {
+  transform-origin: 84px 56px;
+  animation: pegasus-gallop-front-far 0.5s infinite ease-in-out;
+  filter: brightness(0.8);
+}
+
+.pegasus-leg-back-near {
+  transform-origin: 52px 62px;
+  animation: pegasus-gallop-back-near 0.5s infinite ease-in-out;
+}
+
+.pegasus-leg-back-far {
+  transform-origin: 54px 60px;
+  animation: pegasus-gallop-back-far 0.5s infinite ease-in-out;
+  filter: brightness(0.8);
+}
+
+@keyframes pegasus-gallop-front-near {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(15deg); }
+}
+
+@keyframes pegasus-gallop-front-far {
+  0%, 100% { transform: rotate(15deg); }
+  50% { transform: rotate(-10deg); }
+}
+
+@keyframes pegasus-gallop-back-near {
+  0%, 100% { transform: rotate(10deg); }
+  50% { transform: rotate(-10deg); }
+}
+
+@keyframes pegasus-gallop-back-far {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(15deg); }
+}
+
+/* Mane and Tail Waving */
+.pegasus-tail {
+  transform-origin: 38px 40px;
+  animation: pegasus-tail-wave 0.6s infinite alternate ease-in-out;
+}
+
+@keyframes pegasus-tail-wave {
+  0% { transform: rotate(-5deg) skewY(-2deg); }
+  100% { transform: rotate(10deg) skewY(3deg); }
+}
+
+#pegasus-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
 }

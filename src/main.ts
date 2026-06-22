@@ -252,16 +252,18 @@ sys.stderr = _cap_err
       setStatus('ready', `Done in ${duration} ms`);
       dom.execBadge.textContent = `✓ ${duration} ms`;
       dom.execBadge.style.color = 'var(--teal)';
-      flyButterfly();
+      flyButterfly(true);
     } else {
       setStatus('error', 'Completed with errors');
       dom.execBadge.textContent = `✗ ${duration} ms`;
       dom.execBadge.style.color = 'var(--red)';
+      flyButterfly(false);
     }
 
   } catch (e: any) {
     appendOut('Unexpected runner error: ' + e.message, 'err-line');
     setStatus('error', 'Runtime error');
+    flyButterfly(false);
   } finally {
     dom.btnRun.disabled = false;
   }
@@ -718,38 +720,284 @@ function downloadOutputLog() {
   URL.revokeObjectURL(url);
 }
 
-// ── Flying butterfly animation ──
-function flyButterfly() {
-  const b = document.getElementById('fly-butterfly');
-  if (!b) return;
-  const startY = 10 + Math.random() * 40;
-  const endY   = 10 + Math.random() * 40;
-  b.style.transition = 'none';
-  b.style.display = 'block';
-  b.style.left = '-80px';
-  b.style.top  = startY + '%';
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      b.style.transition = `left 3.2s cubic-bezier(.35, 0, .25, 1), top 3.2s ease-in-out`;
-      b.style.left = 'calc(100vw + 80px)';
-      b.style.top  = endY + '%';
-    });
-  });
+function createButterflySVG(colorType: 'green' | 'red' | 'blue') {
+  let upperColor = '#2E7D6E';
+  let lowerColor = '#4A7BC4';
   
-  setTimeout(() => {
-    b.style.display = 'none';
-    b.style.transition = 'none';
-  }, 3400);
-
-  // Trigger stag antlers (deer horns) animation
-  const deer = document.getElementById('success-deer');
-  if (deer) {
-    deer.classList.add('show');
-    setTimeout(() => {
-      deer.classList.remove('show');
-    }, 3200);
+  if (colorType === 'green') {
+    upperColor = 'var(--teal)';
+    lowerColor = 'var(--sage)';
+  } else if (colorType === 'red') {
+    upperColor = 'var(--red)';
+    lowerColor = 'var(--amber)';
+  } else if (colorType === 'blue') {
+    upperColor = 'var(--blue)';
+    lowerColor = 'var(--teal)';
   }
+
+  return `
+    <svg width="64" height="48" viewBox="0 0 80 54">
+      <g class="fw-left">
+        <ellipse cx="26" cy="20" rx="20" ry="13" fill="${upperColor}" opacity=".92" transform="rotate(-28,26,20)"/>
+        <ellipse cx="18" cy="32" rx="13" ry="8" fill="${lowerColor}" opacity=".8" transform="rotate(12,18,32)"/>
+        <circle cx="20" cy="18" r="3.5" fill="rgba(232,220,191,.35)"/>
+      </g>
+      <g class="fw-right">
+        <ellipse cx="54" cy="20" rx="20" ry="13" fill="${upperColor}" opacity=".92" transform="rotate(28,54,20)"/>
+        <ellipse cx="62" cy="32" rx="13" ry="8" fill="${lowerColor}" opacity=".8" transform="rotate(-12,62,32)"/>
+        <circle cx="60" cy="18" r="3.5" fill="rgba(232,220,191,.35)"/>
+      </g>
+      <ellipse cx="40" cy="27" rx="3" ry="15" fill="#1C1409"/>
+      <circle cx="40" cy="11" r="3.2" fill="#1C1409"/>
+      <line x1="37.5" y1="10" x2="29" y2="2" stroke="#1C1409" stroke-width="1.4" stroke-linecap="round"/>
+      <line x1="42.5" y1="10" x2="51" y2="2" stroke="#1C1409" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>
+  `;
+}
+
+// ── Flying butterfly animation ──
+function flyButterfly(isSuccess: boolean) {
+  const colors: ('blue' | 'red' | 'green')[] = isSuccess 
+    ? ['blue', 'red', 'green'] 
+    : ['red'];
+
+  const count = isSuccess ? 8 : 6;
+
+  for (let i = 0; i < count; i++) {
+    const color = colors[i % colors.length];
+    
+    const b = document.createElement('div');
+    b.className = 'flying-butterfly';
+    b.setAttribute('aria-hidden', 'true');
+    b.innerHTML = createButterflySVG(color);
+    
+    const scale = 0.55 + Math.random() * 0.55; // scale between 0.55 and 1.1
+    const startY = 10 + Math.random() * 70; // 10% to 80% height
+    const endY = 10 + Math.random() * 70;
+    const delay = Math.random() * 800; // stagger start times up to 800ms
+    const duration = 2.5 + Math.random() * 1.5; // fly speed between 2.5s and 4.0s
+    
+    b.style.position = 'fixed';
+    b.style.pointerEvents = 'none';
+    b.style.zIndex = '9999';
+    b.style.left = '-100px';
+    b.style.top = `${startY}%`;
+    b.style.transform = `scale(${scale})`;
+    b.style.display = 'block';
+    
+    document.body.appendChild(b);
+    
+    // Animate after delay
+    setTimeout(() => {
+      b.style.transition = `left ${duration}s cubic-bezier(.35, 0, .25, 1), top ${duration}s ease-in-out`;
+      b.style.left = 'calc(100vw + 100px)';
+      b.style.top = `${endY}%`;
+    }, Math.max(20, delay));
+    
+    // Cleanup after animation completes
+    setTimeout(() => {
+      b.remove();
+    }, Math.max(20, delay) + duration * 1000 + 100);
+  }
+
+  // Trigger majestic flying Pegasus animation on success only
+  if (isSuccess) {
+    triggerPegasusAnimation();
+  }
+}
+
+function createPegasusSVG() {
+  return `
+    <svg class="pegasus-svg" viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="pegasus-body-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FAF6EC" />
+          <stop offset="45%" stop-color="#E2A92D" />
+          <stop offset="100%" stop-color="#C84B2F" />
+        </linearGradient>
+        <linearGradient id="wing-grad-front" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+          <stop offset="60%" stop-color="#4aa899" stop-opacity="0.8" />
+          <stop offset="100%" stop-color="#2e7d6e" stop-opacity="0.95" />
+        </linearGradient>
+        <linearGradient id="wing-grad-back" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8" />
+          <stop offset="100%" stop-color="#1c1409" stop-opacity="0.65" />
+        </linearGradient>
+        <linearGradient id="gold-hair-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FAF6EC" />
+          <stop offset="100%" stop-color="#D4920A" />
+        </linearGradient>
+      </defs>
+      
+      <!-- Back Wing -->
+      <path class="pegasus-wing-back" d="M 65,40 C 58,19 43,6 23,0 C 30,13 40,26 54,39 C 42,33 30,29 15,25 C 24,34 36,40 54,42 C 40,40 28,36 16,32 C 28,40 40,44 61,42 Z" fill="url(#wing-grad-back)" />
+      
+      <!-- Back Leg Far -->
+      <path class="pegasus-leg-back-far" d="M54,60 L45,72 L36,82 L39,85 L49,75 L58,62 Z" fill="url(#pegasus-body-grad)" />
+      
+      <!-- Front Leg Far -->
+      <path class="pegasus-leg-front-far" d="M84,56 L90,64 L96,68 L93,71 L86,66 L80,57 Z" fill="url(#pegasus-body-grad)" />
+      
+      <!-- Body & Head -->
+      <path class="pegasus-body" d="M 100,25 C 104,22 108,18 107,14 C 105,10 99,14 96,18 L 92,10 L 89,14 C 84,21 78,28 75,34 C 70,34 60,36 50,38 C 42,38 38,36 38,40 C 38,44 42,48 46,50 C 50,56 55,62 60,64 C 70,66 80,64 86,58 C 92,54 95,44 97,36 C 96,30 98,27 100,25 Z" fill="url(#pegasus-body-grad)" />
+      
+      <!-- Tail -->
+      <path class="pegasus-tail" d="M 38,40 C 28,40 18,48 10,58 C 16,56 24,52 32,48 C 24,52 18,58 12,66 C 20,62 28,56 36,50 Z" fill="url(#gold-hair-grad)" />
+      
+      <!-- Mane -->
+      <path class="pegasus-mane" d="M 88,14 C 82,18 80,24 82,30 C 84,32 86,28 85,26 C 83,24 84,20 88,16 Z" fill="url(#gold-hair-grad)" />
+      
+      <!-- Front Leg Near -->
+      <path class="pegasus-leg-front-near" d="M80,58 L85,68 L92,72 L88,75 L82,70 L76,59 Z" fill="url(#pegasus-body-grad)" />
+      
+      <!-- Back Leg Near -->
+      <path class="pegasus-leg-back-near" d="M52,62 L42,75 L32,85 L35,88 L46,78 L56,64 Z" fill="url(#pegasus-body-grad)" />
+      
+      <!-- Front Wing -->
+      <path class="pegasus-wing-front" d="M 68,42 C 60,20 45,5 25,-2 C 32,12 42,26 56,40 C 44,34 32,30 16,26 C 26,35 38,42 56,44 C 42,42 30,38 18,34 C 30,42 42,46 64,44 Z" fill="url(#wing-grad-front)" />
+    </svg>
+  `;
+}
+
+interface PegasusParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  color: string;
+  alpha: number;
+  decay: number;
+  gravity: number;
+}
+
+function triggerPegasusAnimation() {
+  const oldPegasus = document.getElementById('pegasus-runner');
+  if (oldPegasus) oldPegasus.remove();
+  const oldCanvas = document.getElementById('pegasus-canvas');
+  if (oldCanvas) oldCanvas.remove();
+
+  const canvas = document.createElement('canvas');
+  canvas.id = 'pegasus-canvas';
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  document.body.appendChild(canvas);
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const peg = document.createElement('div');
+  peg.id = 'pegasus-runner';
+  peg.className = 'pegasus-container';
+  peg.innerHTML = createPegasusSVG();
+  document.body.appendChild(peg);
+
+  const handleResize = () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  };
+  window.addEventListener('resize', handleResize);
+
+  const particles: PegasusParticle[] = [];
+  const particleColors = [
+    'rgba(226, 169, 45, ',
+    'rgba(200, 75, 47, ',
+    'rgba(74, 168, 153, ',
+    'rgba(250, 246, 236, '
+  ];
+
+  const duration = 3800; 
+  const startTime = performance.now();
+
+  function spawnParticles(x: number, y: number, count: number) {
+    for (let i = 0; i < count; i++) {
+      const baseColor = particleColors[Math.floor(Math.random() * particleColors.length)];
+      particles.push({
+        x: x + 15 + Math.random() * 20,
+        y: y + 25 + Math.random() * 25,
+        vx: -3 - Math.random() * 4,
+        vy: (Math.random() - 0.5) * 3,
+        size: 2 + Math.random() * 6,
+        color: baseColor,
+        alpha: 0.9 + Math.random() * 0.1,
+        decay: 0.008 + Math.random() * 0.012,
+        gravity: 0.02 + Math.random() * 0.03
+      });
+    }
+  }
+
+  function loop(now: number) {
+    const elapsed = now - startTime;
+    const t = Math.min(1, elapsed / duration);
+
+    const startX = -180;
+    const endX = window.innerWidth + 180;
+    const startY = window.innerHeight * 0.75;
+    const endY = window.innerHeight * 0.15;
+
+    const x = startX + (endX - startX) * t;
+    const archHeight = -160;
+    const y = (startY + (endY - startY) * t) + Math.sin(t * Math.PI) * archHeight;
+
+    const dx = endX - startX;
+    const dy = (endY - startY) + Math.cos(t * Math.PI) * Math.PI * archHeight;
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+    peg.style.left = '0px';
+    peg.style.top = '0px';
+    peg.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${angle}deg)`;
+
+    if (t < 0.98) {
+      spawnParticles(x, y, 3);
+    }
+
+    ctx!.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += p.gravity;
+      p.alpha -= p.decay;
+
+      if (p.alpha <= 0) {
+        particles.splice(i, 1);
+        continue;
+      }
+
+      ctx!.save();
+      ctx!.fillStyle = `${p.color}${p.alpha})`;
+      ctx!.beginPath();
+      
+      if (p.size > 4 && Math.random() > 0.5) {
+        ctx!.moveTo(p.x, p.y - p.size);
+        ctx!.lineTo(p.x + p.size / 3, p.y - p.size / 3);
+        ctx!.lineTo(p.x + p.size, p.y);
+        ctx!.lineTo(p.x + p.size / 3, p.y + p.size / 3);
+        ctx!.lineTo(p.x, p.y + p.size);
+        ctx!.lineTo(p.x - p.size / 3, p.y + p.size / 3);
+        ctx!.lineTo(p.x - p.size, p.y);
+        ctx!.lineTo(p.x - p.size / 3, p.y - p.size / 3);
+        ctx!.closePath();
+        ctx!.fill();
+      } else {
+        ctx!.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
+        ctx!.fill();
+      }
+      ctx!.restore();
+    }
+
+    if (t < 1 || particles.length > 0) {
+      requestAnimationFrame(loop);
+    } else {
+      peg.remove();
+      canvas.remove();
+      window.removeEventListener('resize', handleResize);
+    }
+  }
+
+  requestAnimationFrame(loop);
 }
 
 // ── EVENT BINDINGS ──
