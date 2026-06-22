@@ -3,7 +3,7 @@ export const EXAMPLES: Record<string, string> = {
 print("Hello, World!")
 print()
 print("Welcome to PyFable — Python Studio")
-print("Inspired by Claude Fable 5 ✦")
+print("Inspired by Fable 5 ✦")
 print()
 
 name = "Guna"

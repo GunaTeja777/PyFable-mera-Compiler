@@ -13,7 +13,31 @@
 
   <!-- Flying butterflies are now generated dynamically in main.ts -->
 
-  <!-- Majestic Pegasus success animation will be created dynamically via JS/Canvas -->
+  <!-- Animated Deer Horns (shown on success) -->
+  <div id="success-deer" aria-hidden="true">
+    <svg viewBox="0 0 100 100" width="120" height="120" fill="none" stroke="currentColor">
+      <!-- Head -->
+      <path d="M50 55 L44 65 L44 75 L50 82 L56 75 L56 65 Z" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M47 77 L53 77" stroke-width="1.5"/>
+      <circle cx="46" cy="67" r="1.2" fill="currentColor"/>
+      <circle cx="54" cy="67" r="1.2" fill="currentColor"/>
+      <!-- Ears -->
+      <path d="M42 62 L30 58 C34 63 38 64 42 64 Z" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M58 62 L70 58 C66 63 62 64 58 64 Z" stroke-width="1.5" stroke-linejoin="round"/>
+      <!-- Left Antler (Horns) -->
+      <path d="M43 57 C38 48 36 38 38 28" stroke-width="2" stroke-linecap="round"/>
+      <path d="M40 45 Q30 42 24 45" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M38 35 Q26 30 18 36" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M38 28 Q30 20 25 24" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M38 28 Q44 20 46 14" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- Right Antler (Horns) -->
+      <path d="M57 57 C62 48 64 38 62 28" stroke-width="2" stroke-linecap="round"/>
+      <path d="M60 45 Q70 42 76 45" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M62 35 Q74 30 82 36" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M62 28 Q70 20 75 24" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M62 28 Q56 20 54 14" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  </div>
 
   <!-- App Shell -->
   <div id="app" class="app-container">
@@ -242,7 +266,7 @@
         Ln 1, Col 1
       </div>
       <div class="status-right">
-        PyFable Studio v2.0 · Claude Fable 5
+        PyFable Studio v2.0
       </div>
     </footer>
 
