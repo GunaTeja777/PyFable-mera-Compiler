@@ -708,31 +708,31 @@ function downloadCodeAndOutput() {
 }
 
 function createButterflySVG(colorType: 'green' | 'red' | 'blue') {
-  let upperColor = '#2E7D6E';
-  let lowerColor = '#4A7BC4';
+  let upperColor = '#1F5E53';
+  let lowerColor = '#315891';
   
   if (colorType === 'green') {
-    upperColor = 'var(--teal)';
-    lowerColor = 'var(--sage)';
+    upperColor = '#1F5E53';
+    lowerColor = '#3D642B';
   } else if (colorType === 'red') {
-    upperColor = 'var(--red)';
-    lowerColor = 'var(--amber)';
+    upperColor = '#8F321F';
+    lowerColor = '#8B6108';
   } else if (colorType === 'blue') {
-    upperColor = 'var(--blue)';
-    lowerColor = 'var(--teal)';
+    upperColor = '#315891';
+    lowerColor = '#1F5E53';
   }
 
   return `
     <svg width="64" height="48" viewBox="0 0 80 54">
       <g class="fw-left">
-        <ellipse cx="26" cy="20" rx="20" ry="13" fill="${upperColor}" opacity=".92" transform="rotate(-28,26,20)"/>
-        <ellipse cx="18" cy="32" rx="13" ry="8" fill="${lowerColor}" opacity=".8" transform="rotate(12,18,32)"/>
-        <circle cx="20" cy="18" r="3.5" fill="rgba(232,220,191,.35)"/>
+        <ellipse cx="26" cy="20" rx="20" ry="13" fill="${upperColor}" opacity=".86" transform="rotate(-28,26,20)"/>
+        <ellipse cx="18" cy="32" rx="13" ry="8" fill="${lowerColor}" opacity=".72" transform="rotate(12,18,32)"/>
+        <circle cx="20" cy="18" r="3.5" fill="rgba(160,143,111,.24)"/>
       </g>
       <g class="fw-right">
-        <ellipse cx="54" cy="20" rx="20" ry="13" fill="${upperColor}" opacity=".92" transform="rotate(28,54,20)"/>
-        <ellipse cx="62" cy="32" rx="13" ry="8" fill="${lowerColor}" opacity=".8" transform="rotate(-12,62,32)"/>
-        <circle cx="60" cy="18" r="3.5" fill="rgba(232,220,191,.35)"/>
+        <ellipse cx="54" cy="20" rx="20" ry="13" fill="${upperColor}" opacity=".86" transform="rotate(28,54,20)"/>
+        <ellipse cx="62" cy="32" rx="13" ry="8" fill="${lowerColor}" opacity=".72" transform="rotate(-12,62,32)"/>
+        <circle cx="60" cy="18" r="3.5" fill="rgba(160,143,111,.24)"/>
       </g>
       <ellipse cx="40" cy="27" rx="3" ry="15" fill="#1C1409"/>
       <circle cx="40" cy="11" r="3.2" fill="#1C1409"/>
