@@ -662,14 +662,45 @@ async function copyOutputToClipboard() {
   }
 }
 
-// Download output text file
-function downloadOutputLog() {
-  const text = dom.output.innerText;
-  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+function formatDownloadTimestamp(date = new Date()) {
+  return date.toISOString().replace(/[:.]/g, '-');
+}
+
+function buildCodeAndOutputExport() {
+  const activeCode = editor ? editor.getValue() : activeFile.content;
+  const files = fs.getFiles().map(file => ({
+    ...file,
+    content: file.name === activeFile.name ? activeCode : file.content
+  }));
+  const output = dom.output.innerText.trimEnd() || '(No output yet)';
+
+  const fileSections = files.map(file => (
+    `# File: ${file.name}\n` +
+    `${file.content.trimEnd() || '# Empty file'}\n`
+  ));
+
+  return [
+    'PyFable Code + Output Export',
+    `Generated: ${new Date().toLocaleString()}`,
+    '',
+    '==================== CODE FILES ====================',
+    '',
+    ...fileSections,
+    '==================== OUTPUT ====================',
+    '',
+    output,
+    ''
+  ].join('\n');
+}
+
+// Download all code files with the latest terminal output.
+function downloadCodeAndOutput() {
+  const exportText = buildCodeAndOutputExport();
+  const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `pyfable_output_${Date.now()}.txt`;
+  a.download = `pyfable_code_output_${formatDownloadTimestamp()}.txt`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -792,7 +823,7 @@ function setupUIEvents() {
   
   // Output Actions
   dom.btnCopyOutput.onclick = copyOutputToClipboard;
-  dom.btnDownloadOutput.onclick = downloadOutputLog;
+  dom.btnDownloadOutput.onclick = downloadCodeAndOutput;
   
   // Global resize handling for sidebar
   window.addEventListener('resize', () => {

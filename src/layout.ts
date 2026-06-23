@@ -234,7 +234,7 @@ export function buildAppLayout(container: HTMLElement) {
       &nbsp;Terminal Output
       <div class="output-actions ml-auto flex items-center gap-2.5">
         <button class="btn-text-action bg-transparent border-none text-ink-light cursor-pointer text-[11px] font-semibold transition-all hover:text-teal hover:underline" id="btn-copy-output" title="Copy output">Copy</button>
-        <button class="btn-text-action bg-transparent border-none text-ink-light cursor-pointer text-[11px] font-semibold transition-all hover:text-teal hover:underline" id="btn-download-output" title="Download output text">Download</button>
+        <button class="btn-text-action bg-transparent border-none text-ink-light cursor-pointer text-[11px] font-semibold transition-all hover:text-teal hover:underline" id="btn-download-output" title="Download code files and output">Download</button>
         <span id="exec-badge" class="exec-badge text-[11px] font-mono font-bold px-1.5 py-0.5 rounded" style="display:none;"></span>
       </div>
     </div>
