@@ -624,19 +624,69 @@ function submitRename(oldName: string, newName: string) {
 }
 
 function deleteFilePrompt(name: string) {
-  if (confirm(`Are you sure you want to delete "${name}"?`)) {
+  showConfirmModal(`Are you sure you want to delete "${name}"? This action cannot be undone.`, () => {
     const success = fs.deleteFile(name);
     if (success) {
       if (activeFile.name === name) {
-        activeFile = fs.getFiles()[0];
-        if (editor) {
-          editor.setValue(activeFile.content);
-        }
+        const nextActive = fs.getFiles()[0];
+        selectFile(nextActive.name);
+      } else {
+        renderFileList();
+        updateEditorHeader();
       }
-      renderFileList();
-      updateEditorHeader();
     }
-  }
+  });
+}
+
+function showConfirmModal(message: string, onConfirm: () => void) {
+  // Create backdrop overlay
+  const backdrop = document.createElement('div');
+  backdrop.className = 'fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-[1000] opacity-0 transition-opacity duration-200';
+  
+  // Create modal card
+  const card = document.createElement('div');
+  card.className = 'bg-cream border-2 border-parchment-dark p-5 rounded-lg shadow-lg max-w-[320px] w-[90%] flex flex-col gap-4 transform scale-95 transition-transform duration-200';
+  
+  card.innerHTML = `
+    <div class="font-playfair text-lg font-bold text-ink">Delete File</div>
+    <div class="text-xs text-ink-light leading-relaxed">${message}</div>
+    <div class="flex justify-end gap-2.5 mt-2">
+      <button class="btn-sm" id="confirm-modal-cancel">Cancel</button>
+      <button class="btn-sm text-white hover:opacity-90" style="background-color: var(--red); border-color: var(--red);" id="confirm-modal-confirm">Delete</button>
+    </div>
+  `;
+  
+  backdrop.appendChild(card);
+  document.body.appendChild(backdrop);
+  
+  // Trigger animation reflow
+  void backdrop.offsetHeight;
+  backdrop.classList.remove('opacity-0');
+  card.classList.remove('scale-95');
+  
+  const closeModal = () => {
+    backdrop.classList.add('opacity-0');
+    card.classList.add('scale-95');
+    setTimeout(() => {
+      backdrop.remove();
+    }, 200);
+  };
+  
+  const btnCancel = card.querySelector('#confirm-modal-cancel') as HTMLButtonElement;
+  const btnConfirm = card.querySelector('#confirm-modal-confirm') as HTMLButtonElement;
+  
+  btnCancel.onclick = closeModal;
+  btnConfirm.onclick = () => {
+    onConfirm();
+    closeModal();
+  };
+  
+  // Close when clicking on backdrop
+  backdrop.onclick = (e) => {
+    if (e.target === backdrop) {
+      closeModal();
+    }
+  };
 }
 
 // ── PACKAGES & SETTINGS DRAWER TOGGLES ──

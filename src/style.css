@@ -42,6 +42,9 @@
   --output-bg:      #18110A;
   --output-text:    #D8CCAD;
   
+  --hdr-bg:         #1C1409;
+  --hdr-text:       #FAF6EC;
+  
   --shadow-sm:      0 1px 2px rgba(28, 20, 9, 0.05);
   --shadow-md:      0 4px 6px -1px rgba(28, 20, 9, 0.08), 0 2px 4px -1px rgba(28, 20, 9, 0.04);
   --shadow-lg:      0 10px 15px -3px rgba(28, 20, 9, 0.1), 0 4px 6px -2px rgba(28, 20, 9, 0.05);
@@ -67,6 +70,9 @@
   --sage:           #76B351;
   --output-bg:      #0C0804;
   --output-text:    #EADBBE;
+  
+  --hdr-bg:         #120D07;
+  --hdr-text:       #FAF6EC;
 }
 
 /* Reset and Core layout */
@@ -95,8 +101,8 @@ html, body {
 
 /* ── HEADER ── */
 .hdr {
-  background: var(--ink);
-  color: var(--cream);
+  background: var(--hdr-bg);
+  color: var(--hdr-text);
   padding: 0 20px;
   height: 52px;
   display: flex;
@@ -574,7 +580,7 @@ html, body {
 
 /* ── EDITOR PANEL ── */
 .panel-editor {
-  flex: 1;
+  flex: none;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -721,8 +727,8 @@ html, body {
 
 /* ── STATUS BAR ── */
 .statusbar {
-  background: var(--ink);
-  color: rgba(232, 220, 191, 0.65);
+  background: var(--hdr-bg);
+  color: rgba(250, 246, 236, 0.65);
   padding: 4px 16px;
   height: 30px;
   font-size: 15px;
