@@ -7,6 +7,7 @@ import { EXAMPLES } from './examples';
 import { buildAppLayout } from './layout';
 import { analyzeComplexity } from './analyzer';
 import { runJavaCode } from './javaRunner';
+import { PanelSplitter } from './splitter';
 
 declare global {
   interface Window {
@@ -17,6 +18,15 @@ declare global {
 
 // ── APP DOM ELEMENTS (Dynamically Generated) ──
 const dom = buildAppLayout(document.getElementById('app') as HTMLElement);
+
+// Initialize Splitter
+new PanelSplitter({
+  editorPanel: dom.editorPanel,
+  outputPanel: dom.outputPanel,
+  resizer: dom.layoutResizer,
+  mainLayout: dom.editorPanel.parentElement as HTMLElement,
+  toggleBtn: dom.btnToggleTerminal
+});
 
 // ── STATE ──
 const fs = new FileSystem();
