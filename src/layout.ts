@@ -39,7 +39,7 @@ export function buildAppLayout(container: HTMLElement) {
         <ellipse cx="40" cy="28" rx="3" ry="15" fill="#E8DCBF"/>
         <circle cx="40" cy="12" r="3" fill="#E8DCBF"/>
       </svg>
-      <div class="hdr-logo font-playfair text-[22px] font-bold tracking-[0.3px] whitespace-nowrap">Co<em class="text-amber not-italic font-normal">Fable</em></div>
+      <h1 class="hdr-logo font-playfair text-[22px] font-bold tracking-[0.3px] whitespace-nowrap">Co<em class="text-amber not-italic font-normal">Fable</em></h1>
       <div class="hdr-sub text-[11px] text-cream/40 italic whitespace-nowrap">— PyJava Studio · Fable 5 Edition</div>
     </div>
     <div class="hdr-bg-butterflies" aria-hidden="true">
