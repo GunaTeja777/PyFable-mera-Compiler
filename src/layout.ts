@@ -17,7 +17,7 @@ export function buildAppLayout(container: HTMLElement) {
       <circle cx="45" cy="12" r="3.8" fill="#1C1409"/>
     </svg>
     <h2 class="font-playfair text-[26px] text-ink font-bold">CoFable</h2>
-    <p class="text-xs text-ink-light">Summoning the Python WebAssembly runtime…</p>
+    <p class="text-xs text-ink-light">Summoning the PyJava WebAssembly runtime…</p>
     <div class="ldots">
       <span class="inline-block w-[9px] height-[9px] rounded-full mx-1 bg-teal animate-[ldot_1.4s_infinite_ease-in-out]"></span>
       <span class="inline-block w-[9px] height-[9px] rounded-full mx-1 bg-amber animate-[ldot_1.4s_infinite_ease-in-out_0.22s]"></span>

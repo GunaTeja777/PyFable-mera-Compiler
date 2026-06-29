@@ -182,7 +182,7 @@ builtins.input = custom_input
   } catch (e: any) {
     dom.loadingOverlay.style.display = 'none';
     clearOutput();
-    appendOut('✗ Failed to load Python runtime: ' + e.message, 'err-line');
+    appendOut('✗ Failed to load PyJava runtime: ' + e.message, 'err-line');
     setStatus('error', 'Runtime failed');
   }
 }
