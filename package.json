@@ -13,6 +13,7 @@
     "vite": "^8.0.12"
   },
   "dependencies": {
+    "@codemirror/lang-java": "^6.0.2",
     "@codemirror/lang-python": "^6.2.1",
     "@tailwindcss/vite": "^4.3.1",
     "codemirror": "^6.0.2",

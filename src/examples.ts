@@ -1,5 +1,6 @@
-export const EXAMPLES: Record<string, string> = {
-  hello: `# ✦ Hello, World — a timeless beginning
+export const EXAMPLES: Record<'python' | 'java', Record<string, string>> = {
+  python: {
+    hello: `# ✦ Hello, World — a timeless beginning
 print("Hello, World!")
 print()
 print("Welcome to PyFable — Python Studio")
@@ -10,7 +11,7 @@ name = "Guna"
 lang = "Python"
 print(f"Happy coding, {name}! Let's write some {lang}.")`,
 
-  fib: `# Fibonacci — nature's own sequence 🌿
+    fib: `# Fibonacci — nature's own sequence 🌿
 def fibonacci(n):
     """Yield Fibonacci numbers up to n terms."""
     a, b = 0, 1
@@ -31,7 +32,7 @@ print(f"  Max term : {seq[-1]:,}")
 ratio = seq[-1] / seq[-2]
 print(f"  φ ≈ {ratio:.6f}  (true: 1.618034…)")`,
 
-  listcomp: `# List Comprehensions — expressive Python ✦
+    listcomp: `# List Comprehensions — expressive Python ✦
 # Basic squares
 squares = [x**2 for x in range(1, 11)]
 print("Squares:", squares)
@@ -55,7 +56,7 @@ for i, row in enumerate(table, 1):
 word_lengths = {w: len(w) for w in ["butterfly", "parchment", "fable", "python"]}
 print("\\n  Word lengths:", word_lengths)`,
 
-  classes: `# Classes & Objects — botanical taxonomy 🦋
+    classes: `# Classes & Objects — botanical taxonomy 🦋
 class Butterfly:
     """A lepidopteran specimen."""
     _count = 0
@@ -100,104 +101,7 @@ for b in sorted(collection, reverse=True):
 
 print(f"\\n  Total specimens: {Butterfly.total()}")`,
 
-  deco: `# Decorators — wrapping functions elegantly ✦
-import time
-
-def timer(func):
-    """Measure and report execution time."""
-    def wrapper(*args, **kwargs):
-        t0 = time.time()
-        result = func(*args, **kwargs)
-        ms = (time.time() - t0) * 1000
-        print(f"  ⏱  {func.__name__}() → {ms:.2f} ms")
-        return result
-    return wrapper
-
-def memoize(func):
-    """Cache results for repeated calls."""
-    cache = {}
-    def wrapper(*args):
-        if args not in cache:
-            cache[args] = func(*args)
-        return cache[args]
-    wrapper.cache = cache
-    return wrapper
-
-@timer
-@memoize
-def fib(n):
-    if n < 2:
-        return n
-    return fib(n - 1) + fib(n - 2)
-
-@timer
-def prime_sieve(limit):
-    """Sieve of Eratosthenes."""
-    sieve = [True] * (limit + 1)
-    sieve[0] = sieve[1] = False
-    for i in range(2, int(limit**.5) + 1):
-        if sieve[i]:
-            for j in range(i*i, limit+1, i):
-                sieve[j] = False
-    return [i for i, v in enumerate(sieve) if v]
-
-print("Decorated functions:\\n")
-result = fib(35)
-print(f"  fib(35) = {result:,}\\n")
-
-primes = prime_sieve(200)
-print(f"  Primes up to 200: {len(primes)} found")
-print(f"  Last five: {primes[-5:]}")`,
-
-  gen: `# Generators — lazy sequences ✦
-def infinite_primes():
-    """Yield primes forever using a sieve."""
-    D = {}
-    q = 2
-    while True:
-        if q not in D:
-            yield q
-            D[q * q] = [q]
-        else:
-            for p in D[q]:
-                D.setdefault(p + q, []).append(p)
-            del D[q]
-        q += 1
-
-def take(n, gen):
-    for _ in range(n):
-        yield next(gen)
-
-# First 20 primes
-gen = infinite_primes()
-primes = list(take(20, gen))
-print("First 20 primes:")
-print(" ", primes)
-
-# Fibonacci via generator expression
-def fib_gen():
-    a, b = 0, 1
-    while True:
-        yield a
-        a, b = b, a + b
-
-fibs = [x for x, _ in zip(fib_gen(), range(12))]
-print("\\nFirst 12 Fibonacci:")
-print(" ", fibs)
-
-# Pipeline: lazy map + filter + take
-def naturals(start=1):
-    n = start
-    while True:
-        yield n
-        n += 1
-
-pipeline = (x**2 for x in naturals() if x % 3 == 0)
-result = [next(pipeline) for _ in range(8)]
-print("\\nFirst 8 multiples-of-3 squared:")
-print(" ", result)`,
-
-  butterfly: `# 🦋 ASCII Butterfly — pattern art
+    butterfly: `# 🦋 ASCII Butterfly — pattern art
 def butterfly(size=7):
     lines = []
     for i in range(size, 0, -1):
@@ -231,7 +135,7 @@ print("\\n\\nDotted wings (size 5):\\n")
 colored_wings(5)
 print("\\n  Beauty emerging from simple rules 🦋")`,
 
-  fractal: `# Mandelbrot Set — ASCII rendering ✦
+    fractal: `# Mandelbrot Set — ASCII rendering ✦
 def mandelbrot(c, max_iter=48):
     z = 0
     for n in range(max_iter):
@@ -259,4 +163,132 @@ for row in range(rows):
     print(line)
 print()
 print("  Infinite complexity from z² + c  ✦")`
+  },
+  
+  java: {
+    hello: `// ✦ Hello, World in Java — a timeless beginning
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+        System.out.println();
+        System.out.println("Welcome to PyFable — Java Studio");
+        System.out.println("Inspired by Fable 5 ✦");
+        System.out.println();
+        
+        String name = "Guna";
+        String lang = "Java";
+        System.out.printf("Happy coding, %s! Let's write some %s.\\n", name, lang);
+    }
+}`,
+
+    fib: `// Fibonacci sequence in Java 🌿
+public class Main {
+    public static void main(String[] args) {
+        int n = 14;
+        System.out.println("Fibonacci (" + n + " terms):");
+        
+        int a = 0, b = 1;
+        int sum = 0;
+        int maxTerm = 0;
+        
+        for (int i = 0; i < n; i++) {
+            System.out.print(a + (i == n - 1 ? "" : " → "));
+            sum += a;
+            maxTerm = a;
+            
+            int next = a + b;
+            a = b;
+            b = next;
+        }
+        System.out.println();
+        System.out.println();
+        System.out.println("  Sum      : " + sum);
+        System.out.println("  Max term : " + maxTerm);
+    }
+}`,
+
+    lists: `// ArrayList and HashMap in Java 📦
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class Main {
+    public static void main(String[] args) {
+        // ArrayList Demonstration
+        ArrayList<String> fruits = new ArrayList<>();
+        fruits.add("Apple");
+        fruits.add("Banana");
+        fruits.add("Cherry");
+        System.out.println("Fruits list: " + fruits);
+        
+        // HashMap Demonstration
+        HashMap<String, Integer> prices = new HashMap<>();
+        prices.put("Apple", 3);
+        prices.put("Banana", 2);
+        System.out.println("Fruit Prices Map: " + prices);
+        
+        System.out.println("Price of Banana: " + prices.get("Banana"));
+        System.out.println("Fruits count: " + fruits.size());
+    }
+}`,
+
+    scanner: `// Interactive Scanner Example ☕
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter your name: ");
+        String name = scanner.nextLine();
+        
+        System.out.print("Enter your favorite number: ");
+        int number = scanner.nextInt();
+        
+        System.out.println();
+        System.out.println("Hello, " + name + "! Welcome to PyFable Java Studio.");
+        System.out.println("Your favorite number doubled is: " + (number * 2));
+    }
+}`,
+
+    butterfly: `// 🦋 Beautiful Dotted Wing Butterfly Art in Java
+public class Main {
+    public static void drawButterfly(int size) {
+        String[] chars = {"·", "∘", "○", "◌", "◎", "●", "◉"};
+        
+        // Upper wings
+        for (int i = size; i > 0; i--) {
+            StringBuilder pad = new StringBuilder();
+            for (int k = 0; k < size - i; k++) pad.append(" ");
+            
+            StringBuilder wing = new StringBuilder();
+            String c = chars[Math.min(i - 1, chars.length - 1)];
+            for (int k = 0; k < i; k++) wing.append(c).append(" ");
+            
+            System.out.println(pad.toString() + wing.toString() + "   " + wing.toString());
+        }
+        
+        // Body
+        StringBuilder bodyPad = new StringBuilder();
+        for (int k = 0; k < size - 1; k++) bodyPad.append(" ");
+        System.out.println(bodyPad.toString() + "  >(°)<");
+        
+        // Lower wings
+        for (int i = 1; i <= size; i++) {
+            StringBuilder pad = new StringBuilder();
+            for (int k = 0; k < size - i; k++) pad.append(" ");
+            
+            StringBuilder wing = new StringBuilder();
+            String c = chars[Math.min(i - 1, chars.length - 1)];
+            for (int k = 0; k < i; k++) wing.append(c).append(" ");
+            
+            System.out.println(pad.toString() + wing.toString() + "   " + wing.toString());
+        }
+    }
+    
+    public static void main(String[] args) {
+        System.out.println("✦ Java Butterfly Art (size 6):\\n");
+        drawButterfly(6);
+        System.out.println("\\n  Beauty emerging from simple algorithms 🦋");
+    }
+}`
+  }
 };

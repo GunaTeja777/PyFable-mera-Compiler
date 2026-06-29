@@ -1,6 +1,7 @@
-import { EditorState, Extension } from '@codemirror/state';
+import { EditorState, Extension, Compartment } from '@codemirror/state';
 import { EditorView, keymap, highlightActiveLine, lineNumbers, drawSelection } from '@codemirror/view';
 import { python } from '@codemirror/lang-python';
+import { java } from '@codemirror/lang-java';
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
 import { syntaxHighlighting, HighlightStyle } from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
@@ -63,11 +64,13 @@ export interface EditorConfig {
   onCursorMove: (line: number, col: number) => void;
   onRunShortcut: () => void;
   fontSize: string;
+  initialLanguage?: 'python' | 'java';
 }
 
 export class CodeStudioEditor {
   private view: EditorView;
   private onUpdateCallback: (code: string) => void;
+  private languageConf = new Compartment();
 
   constructor(config: EditorConfig) {
     this.onUpdateCallback = config.onUpdate;
@@ -80,7 +83,7 @@ export class CodeStudioEditor {
       history(),
       highlightActiveLine(),
       drawSelection(),
-      python(),
+      this.languageConf.of(config.initialLanguage === 'java' ? java() : python()),
       botanicalTheme,
       syntaxHighlighting(botanicalHighlightStyle),
       keymap.of([
@@ -141,6 +144,13 @@ export class CodeStudioEditor {
       changes: { from: 0, to: this.view.state.doc.length, insert: code }
     });
     this.view.dispatch(transaction);
+  }
+
+  public setLanguage(lang: 'python' | 'java') {
+    const langExtension = lang === 'java' ? java() : python();
+    this.view.dispatch({
+      effects: this.languageConf.reconfigure(langExtension)
+    });
   }
 
   public focus() {

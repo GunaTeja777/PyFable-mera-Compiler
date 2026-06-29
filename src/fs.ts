@@ -24,6 +24,29 @@ print(get_butterfly_art())
 `
   },
   {
+    name: 'Main.java',
+    content: `// ✦ Welcome to PyFable — Java Edition ✦
+// Feel free to edit this code and run it!
+
+import java.util.ArrayList;
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+        System.out.println();
+        
+        // Java lists and variables are fully supported!
+        ArrayList<String> collection = new ArrayList<>();
+        collection.add("Butterfly");
+        collection.add("Parchment");
+        collection.add("Fable");
+        
+        System.out.println("Workspace objects: " + collection);
+    }
+}
+`
+  },
+  {
     name: 'utils.py',
     content: `# 🌿 Utility Functions for PyFable 
 
@@ -114,7 +137,7 @@ export class FileSystem {
     // Basic sanitization
     let cleanName = name.trim();
     if (!cleanName) return null;
-    if (!cleanName.endsWith('.py')) {
+    if (!cleanName.endsWith('.py') && !cleanName.endsWith('.java')) {
       cleanName += '.py';
     }
 
@@ -153,8 +176,9 @@ export class FileSystem {
   public renameFile(oldName: string, newName: string): VirtualFile | null {
     let cleanNewName = newName.trim();
     if (!cleanNewName) return null;
-    if (!cleanNewName.endsWith('.py')) {
-      cleanNewName += '.py';
+    if (!cleanNewName.endsWith('.py') && !cleanNewName.endsWith('.java')) {
+      const ext = oldName.endsWith('.java') ? '.java' : '.py';
+      cleanNewName += ext;
     }
 
     if (oldName === cleanNewName) return null;

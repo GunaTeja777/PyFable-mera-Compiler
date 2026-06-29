@@ -6,6 +6,7 @@ import { EXAMPLES } from './examples';
 
 import { buildAppLayout } from './layout';
 import { analyzeComplexity } from './analyzer';
+import { runJavaCode } from './javaRunner';
 
 declare global {
   interface Window {
@@ -27,12 +28,58 @@ let packageManager: PackageManager | null = null;
 let runStartTime = 0;
 let isDirty = false;
 
+// ── UTILITY FUNCTIONS FOR LANGUAGE HANDLING ──
+function getLanguageOfFile(filename: string): 'python' | 'java' {
+  return filename.endsWith('.java') ? 'java' : 'python';
+}
+
+function updateExamplesDropdown(lang: 'python' | 'java') {
+  dom.exampleSel.innerHTML = '<option value="">— Examples —</option>';
+  if (lang === 'python') {
+    dom.exampleSel.innerHTML += `
+      <option value="hello">Hello, World</option>
+      <option value="fib">Fibonacci</option>
+      <option value="listcomp">List Comprehensions</option>
+      <option value="classes">Classes & Objects</option>
+      <option value="butterfly">🦋 Butterfly Art</option>
+      <option value="fractal">Mandelbrot (ASCII)</option>
+    `;
+  } else {
+    dom.exampleSel.innerHTML += `
+      <option value="hello">Hello, World</option>
+      <option value="fib">Fibonacci</option>
+      <option value="lists">Lists & Maps</option>
+      <option value="scanner">Interactive Scanner</option>
+      <option value="butterfly">🦋 Butterfly Art</option>
+    `;
+  }
+}
+
+function updateRuntimeStatus() {
+  const isJava = activeFile.name.endsWith('.java');
+  if (isJava) {
+    dom.pyver.textContent = 'Java (Transpiled)';
+    dom.btnRun.disabled = false;
+    setStatus('ready', 'Java Ready');
+  } else {
+    if (pyReady) {
+      dom.btnRun.disabled = false;
+      setStatus('ready', 'Ready');
+    } else {
+      dom.pyver.textContent = 'Python —';
+      dom.btnRun.disabled = true;
+      setStatus('running', 'Initializing WebAssembly Python…');
+    }
+  }
+}
+
 // ── INITIALIZATION ──
 async function initApp() {
   setupEditor();
   setupUIEvents();
   renderFileList();
   setupMobileTabs();
+  updateExamplesDropdown(getLanguageOfFile(activeFile.name));
   await loadPyodideRuntime();
 }
 
@@ -42,6 +89,7 @@ function setupEditor() {
     parent: dom.editorHolder,
     initialCode: activeFile.content,
     fontSize: dom.settingFontSize.value,
+    initialLanguage: getLanguageOfFile(activeFile.name),
     onUpdate: (code) => {
       isDirty = true;
       activeFile.content = code;
@@ -59,13 +107,15 @@ function setupEditor() {
       dom.sline.textContent = `Ln ${line}, Col ${col}`;
     },
     onRunShortcut: () => {
-      if (pyReady) {
+      const isJava = activeFile.name.endsWith('.java');
+      if (pyReady || isJava) {
         runCode();
       }
     }
   });
   
   updateEditorHeader();
+  updateRuntimeStatus();
 }
 
 function saveActiveFileContent() {
@@ -90,7 +140,12 @@ async function loadPyodideRuntime() {
     });
 
     const ver = pyodide.runPython('import sys; ".".join(map(str, sys.version_info[:3]))');
-    dom.pyver.textContent = `Python ${ver}`;
+    
+    // Only overwrite text if active file is Python
+    const isJava = activeFile.name.endsWith('.java');
+    if (!isJava) {
+      dom.pyver.textContent = `Python ${ver}`;
+    }
     pyReady = true;
     
     // Initialize Package Manager
@@ -115,8 +170,7 @@ builtins.input = custom_input
 `);
 
     dom.loadingOverlay.style.display = 'none';
-    dom.btnRun.disabled = false;
-    setStatus('ready', 'Ready');
+    updateRuntimeStatus();
     clearOutput();
     
     appendOut('✦ PyFable ready — Fable 5 Edition', 'sys-line');
@@ -135,7 +189,9 @@ builtins.input = custom_input
 
 // ── CODE EXECUTION ──
 async function runCode() {
-  if (!pyReady || !editor) return;
+  const isJava = activeFile.name.endsWith('.java');
+  if (!isJava && !pyReady) return;
+  if (!editor) return;
 
   // Make sure current changes are saved
   saveActiveFileContent();
@@ -150,11 +206,63 @@ async function runCode() {
 
   runStartTime = performance.now();
 
+  if (isJava) {
+    await runJava(code);
+  } else {
+    await runPython(code);
+  }
+}
+
+async function runJava(code: string) {
+  try {
+    const result = await runJavaCode(
+      code,
+      (text) => {
+        text.split('\n').forEach((line) => {
+          if (line || text.endsWith(line)) {
+            appendOut(line, 'out-line');
+          }
+        });
+      },
+      (text) => {
+        text.split('\n').forEach((line) => {
+          if (line) appendOut(line, 'err-line');
+        });
+      }
+    );
+
+    const duration = result.durationMs;
+    dom.execBadge.style.display = 'inline';
+
+    if (!result.hadError) {
+      const { time: timeComp, space: spaceComp } = analyzeComplexity(code, true);
+      setStatus('ready', `Done in ${duration} ms`);
+      dom.execBadge.textContent = `✓ ${duration} ms | Time: ${timeComp} | Space: ${spaceComp}`;
+      dom.execBadge.style.color = 'var(--teal)';
+      flyButterfly(true);
+    } else {
+      setStatus('error', 'Completed with errors');
+      dom.execBadge.textContent = `✗ ${duration} ms`;
+      dom.execBadge.style.color = 'var(--red)';
+      flyButterfly(false);
+    }
+  } catch (e: any) {
+    appendOut('Unexpected runner error: ' + e.message, 'err-line');
+    setStatus('error', 'Runtime error');
+    flyButterfly(false);
+  } finally {
+    dom.btnRun.disabled = false;
+  }
+}
+
+async function runPython(code: string) {
   try {
     // Write all VFS files to Pyodide's virtual filesystem
     // This makes local imports work out of the box!
     for (const file of fs.getFiles()) {
-      pyodide.FS.writeFile(file.name, file.content);
+      if (file.name.endsWith('.py')) {
+        pyodide.FS.writeFile(file.name, file.content);
+      }
     }
 
     // Set up stdout/stderr capture redirection in Python
@@ -204,7 +312,7 @@ sys.stderr = _cap_err
     dom.execBadge.style.display = 'inline';
     
     if (!hadError) {
-      const { time: timeComp, space: spaceComp } = analyzeComplexity(code);
+      const { time: timeComp, space: spaceComp } = analyzeComplexity(code, false);
       setStatus('ready', `Done in ${duration} ms`);
       dom.execBadge.textContent = `✓ ${duration} ms | Time: ${timeComp} | Space: ${spaceComp}`;
       dom.execBadge.style.color = 'var(--teal)';
@@ -297,7 +405,9 @@ function renderFileList() {
     // File Label Left
     const nameSpan = document.createElement('span');
     nameSpan.className = 'file-item-name';
-    nameSpan.innerHTML = `🐍 ${file.name}`;
+    const isJava = file.name.endsWith('.java');
+    const icon = isJava ? '☕' : '🐍';
+    nameSpan.innerHTML = `${icon} ${file.name}`;
     li.appendChild(nameSpan);
     
     // Actions Right
@@ -348,7 +458,8 @@ function renderFileList() {
     const input = document.createElement('input');
     input.type = 'text';
     input.id = 'new-file-name-input';
-    input.placeholder = 'filename.py';
+    const currentExt = activeFile.name.endsWith('.java') ? '.java' : '.py';
+    input.placeholder = `filename${currentExt}`;
     nameSpan.appendChild(input);
     li.appendChild(nameSpan);
     
@@ -397,12 +508,16 @@ function selectFile(name: string) {
   const file = fs.getFile(name);
   if (file) {
     activeFile = file;
+    const lang = getLanguageOfFile(file.name);
     if (editor) {
       editor.setValue(file.content);
+      editor.setLanguage(lang);
       editor.focus();
     }
     updateEditorHeader();
     renderFileList();
+    updateRuntimeStatus();
+    updateExamplesDropdown(lang);
     
     // If on mobile, switch view to editor tab
     if (window.innerWidth <= 768) {
@@ -431,8 +546,9 @@ function submitNewFile(name: string) {
     return;
   }
   
-  if (!cleanName.endsWith('.py')) {
-    cleanName += '.py';
+  if (!cleanName.endsWith('.py') && !cleanName.endsWith('.java')) {
+    const ext = activeFile.name.endsWith('.java') ? '.java' : '.py';
+    cleanName += ext;
   }
 
   const files = fs.getFiles();
@@ -441,7 +557,15 @@ function submitNewFile(name: string) {
     return;
   }
 
-  const created = fs.createFile(cleanName, `# Virtual Python file: ${cleanName}\n\n`);
+  let initialContent = '';
+  if (cleanName.endsWith('.java')) {
+    const className = cleanName.replace('.java', '');
+    initialContent = `public class ${className} {\n    public static void main(String[] args) {\n        System.out.println("Hello from ${className}!");\n    }\n}\n`;
+  } else {
+    initialContent = `# Virtual Python file: ${cleanName}\n\n`;
+  }
+
+  const created = fs.createFile(cleanName, initialContent);
   isCreatingFile = false;
   renderFileList();
   if (created) {
@@ -457,8 +581,9 @@ function submitRename(oldName: string, newName: string) {
     return;
   }
 
-  if (!cleanName.endsWith('.py')) {
-    cleanName += '.py';
+  if (!cleanName.endsWith('.py') && !cleanName.endsWith('.java')) {
+    const ext = oldName.endsWith('.java') ? '.java' : '.py';
+    cleanName += ext;
   }
 
   const files = fs.getFiles();
@@ -475,6 +600,12 @@ function submitRename(oldName: string, newName: string) {
       activeFile = updated;
     }
     updateEditorHeader();
+    const lang = getLanguageOfFile(updated.name);
+    if (editor) {
+      editor.setLanguage(lang);
+    }
+    updateRuntimeStatus();
+    updateExamplesDropdown(lang);
   }
 }
 
@@ -629,14 +760,18 @@ function formatCode() {
 }
 
 function loadExampleSnippet(key: string) {
-  if (key && EXAMPLES[key] && editor) {
+  if (key && editor) {
+    const lang = getLanguageOfFile(activeFile.name);
+    const code = EXAMPLES[lang][key];
+    if (!code) return;
+
     // Confirm override if dirty
     if (isDirty && !confirm("Discard current changes in this file?")) {
       dom.exampleSel.value = '';
       return;
     }
     
-    editor.setValue(EXAMPLES[key]);
+    editor.setValue(code);
     editor.focus();
     dom.exampleSel.value = '';
     
