@@ -1031,3 +1031,37 @@ html, body {
   background-color: rgba(255, 255, 255, 0.5);
 }
 
+/* ── CURSOR RESCUE & VISIBILITY OVERRIDES ── */
+.editor-container,
+.cm-editor,
+.cm-scroller,
+.cm-content {
+  cursor: text !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.cm-content * {
+  cursor: text !important;
+}
+
+/* Interactive elements should always use the pointer shape */
+.cm-editor button,
+.cm-editor [role="button"],
+.cm-editor a,
+.btn-sm,
+.btn-run,
+.btn-text-action,
+.file-item,
+.btn-file-action {
+  cursor: pointer !important;
+}
+
+/* Splitter Resizer should always use the col-resize shape */
+.resizer,
+.resizer::after,
+.resizer-thumb {
+  cursor: col-resize !important;
+}
+
+
