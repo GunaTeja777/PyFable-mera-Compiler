@@ -47,14 +47,12 @@ export class PanelSplitter {
     this.applyLayoutState(false);
 
     // 3. Bind Event Listeners
-    this.resizer.addEventListener('mousedown', this.onMouseDown.bind(this));
-    this.resizer.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: true });
+    this.resizer.addEventListener('pointerdown', this.onPointerDown.bind(this));
     this.resizer.addEventListener('dblclick', this.onDoubleClick.bind(this));
     this.toggleBtn.addEventListener('click', this.toggleTerminal.bind(this));
 
     // Keyboard shortcut (Ctrl + `)
     window.addEventListener('keydown', (e) => {
-      // Check if Ctrl + ` is pressed
       if (e.ctrlKey && e.key === '`') {
         e.preventDefault();
         this.toggleTerminal();
@@ -74,7 +72,6 @@ export class PanelSplitter {
    * @param animate Whether to use transition animation
    */
   private applyLayoutState(animate = true) {
-    // Clear any pending transition timeout
     if (this.transitionTimeout) {
       clearTimeout(this.transitionTimeout);
       this.transitionTimeout = null;
@@ -105,7 +102,6 @@ export class PanelSplitter {
       this.toggleBtn.textContent = 'Expand';
       this.toggleBtn.title = 'Expand Terminal (Ctrl+`)';
       
-      // Delay display:none until transition completes
       if (animate) {
         this.transitionTimeout = window.setTimeout(() => {
           this.outputPanel.style.display = 'none';
@@ -121,15 +117,13 @@ export class PanelSplitter {
       // Normal expanded layout
       this.outputPanel.style.display = 'flex';
       this.resizer.style.display = 'block';
-      // Force layout recalculation if display was none
-      void this.outputPanel.offsetHeight;
+      void this.outputPanel.offsetHeight; // Force reflow
 
       this.editorPanel.style.width = `${this.currentPercent}%`;
       this.outputPanel.style.opacity = '1';
       this.toggleBtn.textContent = 'Collapse';
       this.toggleBtn.title = 'Collapse Terminal (Ctrl+`)';
 
-      // Update ARIA attributes
       this.resizer.setAttribute('aria-valuenow', this.currentPercent.toFixed(0));
 
       if (animate) {
@@ -141,18 +135,12 @@ export class PanelSplitter {
     }
   }
 
-  /**
-   * Toggles the terminal collapsed state
-   */
   public toggleTerminal() {
     this.isCollapsed = !this.isCollapsed;
     localStorage.setItem('cofable_terminal_collapsed', String(this.isCollapsed));
     this.applyLayoutState(true);
   }
 
-  /**
-   * Reset layout back to 70/30 split on double click
-   */
   private onDoubleClick() {
     if (window.innerWidth < 768 || this.isCollapsed) return;
     this.currentPercent = 70;
@@ -161,82 +149,82 @@ export class PanelSplitter {
   }
 
   /**
-   * Mouse Drag Handlers
+   * Pointer Events Drag Handlers
    */
-  private onMouseDown(e: MouseEvent) {
+  private onPointerDown(e: PointerEvent) {
     if (window.innerWidth < 768 || this.isCollapsed) return;
     e.preventDefault();
-    this.startDragging();
-  }
 
-  private onTouchStart(_e: TouchEvent) {
-    if (window.innerWidth < 768 || this.isCollapsed) return;
-    this.startDragging();
-  }
+    // Request pointer capture to receive events even outside the splitter boundaries
+    this.resizer.setPointerCapture(e.pointerId);
 
-  private startDragging() {
     this.isDragging = true;
     this.resizer.classList.add('dragging');
     this.editorPanel.classList.remove('transitioning');
     this.outputPanel.classList.remove('transitioning');
 
-    // Prevent cursor/text selection flickering while dragging
+    // Prevent text selection and cursor capture by panels during dragging
     document.body.style.userSelect = 'none';
     document.body.style.cursor = 'col-resize';
+    this.editorPanel.style.pointerEvents = 'none';
+    this.outputPanel.style.pointerEvents = 'none';
 
-    // Bind document move/up events for capture
-    this.onMove = this.onMove.bind(this);
-    this.onEnd = this.onEnd.bind(this);
+    this.onPointerMove = this.onPointerMove.bind(this);
+    this.onPointerUp = this.onPointerUp.bind(this);
 
-    document.addEventListener('mousemove', this.onMove);
-    document.addEventListener('mouseup', this.onEnd);
-    document.addEventListener('touchmove', this.onMove, { passive: false });
-    document.addEventListener('touchend', this.onEnd);
+    this.resizer.addEventListener('pointermove', this.onPointerMove);
+    this.resizer.addEventListener('pointerup', this.onPointerUp);
+    this.resizer.addEventListener('pointercancel', this.onPointerUp);
   }
 
-  private onMove(e: MouseEvent | TouchEvent) {
+  private onPointerMove(e: PointerEvent) {
     if (!this.isDragging) return;
 
-    // Prevent scrolling on mobile touch
-    if (e.type === 'touchmove') {
-      e.preventDefault();
-    }
-
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const layoutRect = this.mainLayout.getBoundingClientRect();
-    const relativeX = clientX - layoutRect.left;
-    
-    // Convert to percentage
+    const relativeX = e.clientX - layoutRect.left;
     let newPercent = (relativeX / layoutRect.width) * 100;
 
-    // Convert pixel limits to percentages
-    // Editor Min: 350px
+    // Convert pixel constraints to percentages
     const minEditorPercent = (350 / layoutRect.width) * 100;
-    // Terminal Min: 250px (subtracting splitter width of 6px)
     const minTerminalPercent = ((layoutRect.width - 250 - 6) / layoutRect.width) * 100;
 
     // Clamp values
     newPercent = Math.max(minEditorPercent, Math.min(newPercent, minTerminalPercent));
-
     this.currentPercent = newPercent;
-    this.editorPanel.style.width = `${newPercent}%`;
-    this.resizer.setAttribute('aria-valuenow', newPercent.toFixed(0));
+
+    // Use requestAnimationFrame for smooth 60 FPS layouts
+    requestAnimationFrame(() => {
+      if (this.isDragging) {
+        this.editorPanel.style.width = `${newPercent}%`;
+        this.resizer.setAttribute('aria-valuenow', newPercent.toFixed(0));
+      }
+    });
   }
 
-  private onEnd() {
+  private onPointerUp(e: PointerEvent) {
     if (!this.isDragging) return;
 
     this.isDragging = false;
     this.resizer.classList.remove('dragging');
 
+    // Release pointer capture
+    try {
+      this.resizer.releasePointerCapture(e.pointerId);
+    } catch (err) {
+      // Ignore if capture was already released
+    }
+
+    // Restore text selection and pointer events
     document.body.style.userSelect = '';
     document.body.style.cursor = '';
+    this.editorPanel.style.pointerEvents = '';
+    this.outputPanel.style.pointerEvents = '';
 
     localStorage.setItem('cofable_editor_width', String(this.currentPercent));
 
-    document.removeEventListener('mousemove', this.onMove);
-    document.removeEventListener('mouseup', this.onEnd);
-    document.removeEventListener('touchmove', this.onMove);
-    document.removeEventListener('touchend', this.onEnd);
+    // Cleanup temporary drag event listeners
+    this.resizer.removeEventListener('pointermove', this.onPointerMove);
+    this.resizer.removeEventListener('pointerup', this.onPointerUp);
+    this.resizer.removeEventListener('pointercancel', this.onPointerUp);
   }
 }
