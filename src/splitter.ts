@@ -50,10 +50,10 @@ export class PanelSplitter {
     this.applyLayoutState(false);
 
     // 3. Bind Event Listeners
-    this.resizer.addEventListener('pointerdown', this.onPointerDown.bind(this));
-    this.resizer.addEventListener('dblclick', this.onDoubleClick.bind(this));
-    this.toggleBtn.addEventListener('click', this.toggleTerminal.bind(this));
-    this.toolbarToggleBtn.addEventListener('click', this.toggleTerminal.bind(this));
+    this.resizer.addEventListener('pointerdown', this.onPointerDown);
+    this.resizer.addEventListener('dblclick', this.onDoubleClick);
+    this.toggleBtn.addEventListener('click', this.toggleTerminal);
+    this.toolbarToggleBtn.addEventListener('click', this.toggleTerminal);
 
     // Keyboard shortcut (Ctrl + `)
     window.addEventListener('keydown', (e) => {
@@ -123,6 +123,23 @@ export class PanelSplitter {
       this.resizer.style.display = 'block';
       void this.outputPanel.offsetHeight; // Force reflow
 
+      // Calculate and clamp percentage based on current container size
+      const layoutRect = this.mainLayout.getBoundingClientRect();
+      if (layoutRect.width > 0) {
+        const editorRect = this.editorPanel.getBoundingClientRect();
+        const sidebarWidth = editorRect.left - layoutRect.left;
+
+        const minEditorWidth = 350;
+        const minTerminalWidth = 250;
+        const resizerWidth = 6;
+        
+        const maxEditorWidth = layoutRect.width - sidebarWidth - resizerWidth - minTerminalWidth;
+        
+        let currentWidth = (this.currentPercent / 100) * layoutRect.width;
+        let clampedWidth = Math.max(minEditorWidth, Math.min(currentWidth, maxEditorWidth));
+        this.currentPercent = (clampedWidth / layoutRect.width) * 100;
+      }
+
       this.editorPanel.style.width = `${this.currentPercent}%`;
       this.outputPanel.style.opacity = '1';
       this.toggleBtn.textContent = 'Collapse';
@@ -139,23 +156,23 @@ export class PanelSplitter {
     }
   }
 
-  public toggleTerminal() {
+  public toggleTerminal = () => {
     this.isCollapsed = !this.isCollapsed;
     localStorage.setItem('cofable_terminal_collapsed', String(this.isCollapsed));
     this.applyLayoutState(true);
-  }
+  };
 
-  private onDoubleClick() {
+  private onDoubleClick = () => {
     if (window.innerWidth < 768 || this.isCollapsed) return;
     this.currentPercent = 70;
     localStorage.setItem('cofable_editor_width', '70');
     this.applyLayoutState(true);
-  }
+  };
 
   /**
    * Pointer Events Drag Handlers
    */
-  private onPointerDown(e: PointerEvent) {
+  private onPointerDown = (e: PointerEvent) => {
     if (window.innerWidth < 768 || this.isCollapsed) return;
     e.preventDefault();
 
@@ -177,39 +194,42 @@ export class PanelSplitter {
     this.editorPanel.style.pointerEvents = 'none';
     this.outputPanel.style.pointerEvents = 'none';
 
-    this.onPointerMove = this.onPointerMove.bind(this);
-    this.onPointerUp = this.onPointerUp.bind(this);
+    document.addEventListener('pointermove', this.onPointerMove);
+    document.addEventListener('pointerup', this.onPointerUp);
+    document.addEventListener('pointercancel', this.onPointerUp);
+  };
 
-    this.resizer.addEventListener('pointermove', this.onPointerMove);
-    this.resizer.addEventListener('pointerup', this.onPointerUp);
-    this.resizer.addEventListener('pointercancel', this.onPointerUp);
-  }
-
-  private onPointerMove(e: PointerEvent) {
+  private onPointerMove = (e: PointerEvent) => {
     if (!this.isDragging) return;
 
+    const editorRect = this.editorPanel.getBoundingClientRect();
     const layoutRect = this.mainLayout.getBoundingClientRect();
-    const relativeX = e.clientX - layoutRect.left;
-    let newPercent = (relativeX / layoutRect.width) * 100;
+    
+    // 1. Calculate desired width in pixels (mouse position relative to the left of editorPanel)
+    let newWidth = e.clientX - editorRect.left;
 
-    // Convert pixel constraints to percentages
-    const minEditorPercent = (350 / layoutRect.width) * 100;
-    const minTerminalPercent = ((layoutRect.width - 250 - 6) / layoutRect.width) * 100;
+    // 2. Define pixel constraints
+    const minEditorWidth = 350;
+    const minTerminalWidth = 250;
+    const resizerWidth = 6;
+    const sidebarWidth = editorRect.left - layoutRect.left;
 
-    // Clamp values
-    newPercent = Math.max(minEditorPercent, Math.min(newPercent, minTerminalPercent));
-    this.currentPercent = newPercent;
+    const maxEditorWidth = layoutRect.width - sidebarWidth - resizerWidth - minTerminalWidth;
+
+    // 3. Clamp values
+    newWidth = Math.max(minEditorWidth, Math.min(newWidth, maxEditorWidth));
+    this.currentPercent = (newWidth / layoutRect.width) * 100;
 
     // Use requestAnimationFrame for smooth 60 FPS layouts
     requestAnimationFrame(() => {
       if (this.isDragging) {
-        this.editorPanel.style.width = `${newPercent}%`;
-        this.resizer.setAttribute('aria-valuenow', newPercent.toFixed(0));
+        this.editorPanel.style.width = `${this.currentPercent}%`;
+        this.resizer.setAttribute('aria-valuenow', this.currentPercent.toFixed(0));
       }
     });
-  }
+  };
 
-  private onPointerUp(e: PointerEvent) {
+  private onPointerUp = (e: PointerEvent) => {
     if (!this.isDragging) return;
 
     this.isDragging = false;
@@ -231,8 +251,8 @@ export class PanelSplitter {
     localStorage.setItem('cofable_editor_width', String(this.currentPercent));
 
     // Cleanup temporary drag event listeners
-    this.resizer.removeEventListener('pointermove', this.onPointerMove);
-    this.resizer.removeEventListener('pointerup', this.onPointerUp);
-    this.resizer.removeEventListener('pointercancel', this.onPointerUp);
-  }
+    document.removeEventListener('pointermove', this.onPointerMove);
+    document.removeEventListener('pointerup', this.onPointerUp);
+    document.removeEventListener('pointercancel', this.onPointerUp);
+  };
 }
